@@ -52,7 +52,10 @@ function rubberbandStart(x, y) {
 
 	dragging = true;
 }
-
+/*
+  x,y 鼠标在屏幕的位置
+  rubberbandDiv 是在屏幕上绘制而不是在canvas上，所以left top的计算不需要将鼠标位置跟canvas做比较
+*/
 function rubberbandStretch(x, y) {
    rubberbandRectangle.left = x < mousedown.x ? x : mousedown.x;
    rubberbandRectangle.top  = y < mousedown.y ? y : mousedown.y;
@@ -67,6 +70,7 @@ function rubberbandStretch(x, y) {
 function rubberbandEnd() {
    var bbox = canvas.getBoundingClientRect();
 
+   
    try {
       context.drawImage(canvas,
                         rubberbandRectangle.left - bbox.left,

@@ -69,20 +69,40 @@ context.canvas.onmousedown = function(e) {
     e.stopPropagation();
 };
 
-setInterval(function() {
-   if (!paused) {
+// setInterval(function() {
+   // if (!paused) {
+   //    context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+   //    drawGrid(context, 'lightgray', 10, 10);
+   
+      
+   //    circles.forEach(function(circle) {
+   //      context.beginPath();
+   //       context.arc(circle.x, circle.y, circle.radius, 0, Math.PI*2, false);
+   //       context.fillStyle = circle.color;
+   //       context.fill();
+   //       adjustPosition(circle);
+   //    });
+   // }
+// }, 1000 / 60);
+
+function drawCircles() {
+  if (!paused) {
       context.clearRect(0, 0, context.canvas.width, context.canvas.height);
       drawGrid(context, 'lightgray', 10, 10);
    
+      
       circles.forEach(function(circle) {
-         context.beginPath();
+        context.beginPath();
          context.arc(circle.x, circle.y, circle.radius, 0, Math.PI*2, false);
          context.fillStyle = circle.color;
-         context.fill(); 
+         context.fill();
          adjustPosition(circle);
       });
    }
-}, 1000 / 60);
+  requestAnimationFrame(drawCircles)
+}
+
+drawCircles()
 
 function adjustPosition(circle) {
    if (circle.x + circle.velocityX + circle.radius > context.canvas.width ||
@@ -101,17 +121,22 @@ function drawGrid(context, color, stepx, stepy) {
    context.strokeStyle = color;
    context.lineWidth = 0.5;
 
+   // 只是绘制一个底层方格，可以将其视作一条 path，只开启一次beginPath，在整条 path算完之后再绘制一次就可以了
+   context.beginPath();
+
    for (var i = stepx + 0.5; i < context.canvas.width; i += stepx) {
-      context.beginPath();
+      // context.beginPath();
       context.moveTo(i, 0);
       context.lineTo(i, context.canvas.height);
-      context.stroke();
+      // context.stroke();
    }
 
    for (var i = stepy + 0.5; i < context.canvas.height; i += stepy) {
-      context.beginPath();
+      // context.beginPath();
       context.moveTo(0, i);
       context.lineTo(context.canvas.width, i);
-      context.stroke();
+      // context.stroke();
    }
+
+   context.stroke();
 }
