@@ -39,18 +39,37 @@ function drawDashedLine(context, x1, y1, x2, y2, dashLength) {
    var numDashes = Math.floor(
        Math.sqrt(deltaX * deltaX + deltaY * deltaY) / dashLength);
 
+       console.log('numDashes:', numDashes)
+
    for (var i=0; i < numDashes; ++i) {
       context[ i % 2 === 0 ? 'moveTo' : 'lineTo' ]
          (x1 + (deltaX / numDashes) * i, y1 + (deltaY / numDashes) * i);
    }
 
    context.stroke();
+
 };
 
 context.lineWidth = 3;
 context.strokeStyle = 'blue';
 
+/**
+ * 这里画的虚线，虚线的小线段并不是真的 === dashLength，是近似而已。
+ * 要真的准确，就要设置实部和虚部的长度，然后计算可以画多少个完整的（实部+虚部），然后把剩下的距离，如果有，再算能不能画一个完整的实部，或者画不了一个完整就直接画满剩余空间
+ */
+
 drawDashedLine(context, 20, 20, context.canvas.width-20, 20);
 drawDashedLine(context, context.canvas.width-20, 20, context.canvas.width-20, context.canvas.height-20, 10);
 drawDashedLine(context, context.canvas.width-20, context.canvas.height-20, 20, context.canvas.height-20, 15);
 drawDashedLine(context, 20, context.canvas.height-20, 20, 20, 2);
+
+// drawDashedLine(context, 20, 20, 20 + 215, 20, 20)
+// context.save()
+// context.beginPath()
+// context.strokeStyle = 'red'
+// context.moveTo(20, 20)
+// context.lineTo(20, 200)
+// context.moveTo(20 + 215, 20)
+// context.lineTo(20 + 215, 200)
+// context.stroke()
+// context.restore()

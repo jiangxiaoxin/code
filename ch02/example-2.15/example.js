@@ -80,6 +80,9 @@ function saveDrawingSurface() {
                              canvas.height);
 }
 
+/**
+ * 往canvas上画之前保存的图
+ */
 function restoreDrawingSurface() {
    context.putImageData(drawingSurfaceImageData, 0, 0);
 }
@@ -150,7 +153,9 @@ canvas.onmousedown = function (e) {
    mousedown.y = loc.y;
    dragging = true;
 };
-
+// TODO: 
+// 在move的时候，每次只是putImageData，这就将canvas清空并且重新绘制之前的图形。
+// 然后再按照现在线的位置信息重新画现在的线
 canvas.onmousemove = function (e) {
    var loc; 
 
