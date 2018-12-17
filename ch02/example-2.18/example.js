@@ -68,3 +68,22 @@ context.dashedLineTo(20, context.canvas.height-20);
 context.dashedLineTo(20, 20);
 context.dashedLineTo(context.canvas.width-20, context.canvas.height-20);
 context.stroke();
+
+context.save()
+
+context.lineWidth = 50.0
+context.lineCap = 'round'
+
+context.beginPath()
+context.moveTo(20, 20)
+context.lineTo(100, 100)
+context.strokeStyle = 'red'
+context.stroke()
+
+context.beginPath()
+context.moveTo(100, 100)
+context.lineTo(20, 100)
+context.strokeStyle = 'green'
+context.stroke()
+
+context.restore()
