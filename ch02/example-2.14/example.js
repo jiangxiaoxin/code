@@ -49,7 +49,7 @@ var canvas = document.getElementById('canvas'),
 
     TICK_WIDTH = 10,
     TICKS_LINEWIDTH = 0.5,
-    TICKS_COLOR = 'navy',
+    TICKS_COLOR = 'red',
 
     AXIS_LINEWIDTH = 1.0,
     AXIS_COLOR = 'blue';
@@ -65,19 +65,23 @@ function drawGrid(color, stepx, stepy) {
    context.lineWidth = 0.5;
    context.strokeStyle = color;
 
+   context.beginPath()
+
    for (var i = stepx + 0.5; i < context.canvas.width; i += stepx) {
-     context.beginPath();
+   //   context.beginPath();
      context.moveTo(i, 0);
      context.lineTo(i, context.canvas.height);
-     context.stroke();
+   //   context.stroke();
    }
 
    for (var i = stepy + 0.5; i < context.canvas.height; i += stepy) {
-     context.beginPath();
+   //   context.beginPath();
      context.moveTo(0, i);
      context.lineTo(context.canvas.width, i);
-     context.stroke();
+   //   context.stroke();
    }
+
+   context.stroke()
 
    context.restore();
 }
@@ -90,7 +94,6 @@ function drawAxes() {
    drawHorizontalAxis();
    drawVerticalAxis();
 
-   context.lineWidth = 0.5;
    context.lineWidth = TICKS_LINEWIDTH;
    context.strokeStyle = TICKS_COLOR;
 
@@ -117,8 +120,10 @@ function drawVerticalAxis() {
 function drawVerticalAxisTicks() {
    var deltaY;
    
+   context.beginPath()
+
    for (var i=1; i < NUM_VERTICAL_TICKS; ++i) {
-      context.beginPath();
+      // context.beginPath();
 
       if (i % 5 === 0) deltaX = TICK_WIDTH;
       else             deltaX = TICK_WIDTH/2;
@@ -129,15 +134,18 @@ function drawVerticalAxisTicks() {
       context.lineTo(AXIS_ORIGIN.x + deltaX,
                      AXIS_ORIGIN.y - i * VERTICAL_TICK_SPACING);
 
-      context.stroke();
+      // context.stroke();
    }
+
+   context.stroke()
 }
 
 function drawHorizontalAxisTicks() {
    var deltaY;
    
+   context.beginPath()
    for (var i=1; i < NUM_HORIZONTAL_TICKS; ++i) {
-      context.beginPath();
+      // context.beginPath();
 
       if (i % 5 === 0) deltaY = TICK_WIDTH;
       else             deltaY = TICK_WIDTH/2;
@@ -148,8 +156,9 @@ function drawHorizontalAxisTicks() {
       context.lineTo(AXIS_ORIGIN.x + i * HORIZONTAL_TICK_SPACING,
                      AXIS_ORIGIN.y + deltaY);
 
-      context.stroke();
+      // context.stroke();
    }
+   context.stroke()
 }
 
 // Initialization................................................
