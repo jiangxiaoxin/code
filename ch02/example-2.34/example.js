@@ -224,7 +224,7 @@ function eraseLast() {
    * 这里用了 clip() 将鼠标位置设置为裁剪区。之后画的东西都在这个区域里才能看到
    * 然后重新画了一遍底部的背景格子，而且只显示在上面的裁剪区内，所以给人的感觉像是把原来那里的东西给擦掉了
    */
-  setErasePathForEraser();
+  // setErasePathForEraser();
 
   fixSetErasePathForEraser()
 
