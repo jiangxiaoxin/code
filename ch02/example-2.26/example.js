@@ -127,6 +127,8 @@ function updateRubberbandRectangle(loc) {
 } 
 
 function drawRubberbandShape(loc, sides, startAngle) {
+
+  // 这里画的多边形都是正多边形，只要这几个参数就可以确定了。
    var polygon = new Polygon(mousedown.x, mousedown.y,
                      rubberbandRect.width, 
                      parseInt(sidesSelect.value),
@@ -136,14 +138,26 @@ function drawRubberbandShape(loc, sides, startAngle) {
                      fillCheckbox.checked);
 
    context.beginPath();
-   polygon.createPath(context);
+
+   // 这里调用createPath后，stroke方法里还会再调用一次，不需要。
+   // 如果要做成外部调用，那就在stroke和fill的时候，去掉createPath
+   // 无意义的重复调用方法不好。
+   
+  //  polygon.createPath(context);  
    polygon.stroke(context);
 
    if (fillCheckbox.checked) {
       polygon.fill(context);
    }
 
-   if (!dragging) {
+   // 停止拖动后才会将最后一次的多边形写入数组。
+   // 这里之所以可以这么写，是因为mouseup的时候又调了一遍updateRubberband，然后就会再走一遍drawRubberbandShape
+   // 这样就生成最后的多边形，然后写入数组了。
+
+   // 这里在拖动过程中，每次都新生成一个多边形，不是太合理呀。
+   // 应该是mousedown时就生成一个空的多边形，然后拖动的时候，每次更新这个多边形的数据才对。
+   // 结束后将这个多边形写入数组。
+   if (!dragging) { 
       polygons.push(polygon);
    }
 }
