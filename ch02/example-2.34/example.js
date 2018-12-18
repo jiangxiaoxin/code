@@ -27,330 +27,344 @@
  * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
-*/
+ */
 
 var canvas = document.getElementById('canvas'),
-    context = canvas.getContext('2d'),
-    strokeStyleSelect = document.getElementById('strokeStyleSelect'),
-    fillStyleSelect = document.getElementById('fillStyleSelect'),
-    drawRadio = document.getElementById('drawRadio'),
-    eraserRadio = document.getElementById('eraserRadio'),
-    eraserShapeSelect = document.getElementById('eraserShapeSelect'),
-    eraserWidthSelect = document.getElementById('eraserWidthSelect'),
+  context = canvas.getContext('2d'),
+  strokeStyleSelect = document.getElementById('strokeStyleSelect'),
+  fillStyleSelect = document.getElementById('fillStyleSelect'),
+  drawRadio = document.getElementById('drawRadio'),
+  eraserRadio = document.getElementById('eraserRadio'),
+  eraserShapeSelect = document.getElementById('eraserShapeSelect'),
+  eraserWidthSelect = document.getElementById('eraserWidthSelect'),
 
-    ERASER_LINE_WIDTH = 1,
+  ERASER_LINE_WIDTH = 1,
 
-    ERASER_SHADOW_COLOR = 'rgb(0,0,0)',
-    ERASER_SHADOW_STYLE = 'blue',
-    ERASER_STROKE_STYLE = 'rgb(0,0,255)',
-    ERASER_SHADOW_OFFSET = -5,
-    ERASER_SHADOW_BLUR = 20,
+  ERASER_SHADOW_COLOR = 'rgb(0,0,0)',
+  ERASER_SHADOW_STYLE = 'blue',
+  ERASER_STROKE_STYLE = 'rgb(0,0,255)',
+  ERASER_SHADOW_OFFSET = -5,
+  ERASER_SHADOW_BLUR = 20,
 
-    GRID_HORIZONTAL_SPACING = 10,
-    GRID_VERTICAL_SPACING = 10,
-    GRID_LINE_COLOR = 'lightblue',
-    drawingSurfaceImageData,
-   
-    lastX,
-    lastY,
-    mousedown = {},
-    rubberbandRect = {},
-    dragging = false,
-    guidewires = true;
+  GRID_HORIZONTAL_SPACING = 10,
+  GRID_VERTICAL_SPACING = 10,
+  GRID_LINE_COLOR = 'lightblue',
+  drawingSurfaceImageData,
+
+  lastX,
+  lastY,
+  mousedown = {},
+  rubberbandRect = {},
+  dragging = false,
+  guidewires = true;
 
 // General-purpose functions.....................................
 
 function drawGrid(color, stepx, stepy) {
-   context.save()
+  context.save()
 
-   context.strokeStyle = color;
-   context.fillStyle = '#ffffff';
-   context.lineWidth = 0.5;
-   context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+  context.strokeStyle = color;
+  context.fillStyle = '#ffffff';
+  context.lineWidth = 0.5;
+  context.fillRect(0, 0, context.canvas.width, context.canvas.height);
 
-   for (var i = stepx + 0.5; i < context.canvas.width; i += stepx) {
-     context.beginPath();
-     context.moveTo(i, 0);
-     context.lineTo(i, context.canvas.height);
-     context.stroke();
-   }
+  for (var i = stepx + 0.5; i < context.canvas.width; i += stepx) {
+    context.beginPath();
+    context.moveTo(i, 0);
+    context.lineTo(i, context.canvas.height);
+    context.stroke();
+  }
 
-   for (var i = stepy + 0.5; i < context.canvas.height; i += stepy) {
-     context.beginPath();
-     context.moveTo(0, i);
-     context.lineTo(context.canvas.width, i);
-     context.stroke();
-   }
+  for (var i = stepy + 0.5; i < context.canvas.height; i += stepy) {
+    context.beginPath();
+    context.moveTo(0, i);
+    context.lineTo(context.canvas.width, i);
+    context.stroke();
+  }
 
-   context.restore();
+  context.restore();
 }
 
 function windowToCanvas(x, y) {
-   var bbox = canvas.getBoundingClientRect();
-   return { x: x - bbox.left * (canvas.width  / bbox.width),
-            y: y - bbox.top  * (canvas.height / bbox.height)
-          };
+  var bbox = canvas.getBoundingClientRect();
+  return {
+    x: x - bbox.left * (canvas.width / bbox.width),
+    y: y - bbox.top * (canvas.height / bbox.height)
+  };
 }
 
 // Save and restore drawing surface..............................
 
 function saveDrawingSurface() {
-   drawingSurfaceImageData = context.getImageData(0, 0,
-                             canvas.width,
-                             canvas.height);
+  drawingSurfaceImageData = context.getImageData(0, 0,
+    canvas.width,
+    canvas.height);
 }
 
 function restoreDrawingSurface() {
-   context.putImageData(drawingSurfaceImageData, 0, 0);
+  context.putImageData(drawingSurfaceImageData, 0, 0);
 }
 
 // Rubberbands...................................................
 
 function updateRubberbandRectangle(loc) {
-   rubberbandRect.width  = Math.abs(loc.x - mousedown.x);
-   rubberbandRect.height = Math.abs(loc.y - mousedown.y);
+  rubberbandRect.width = Math.abs(loc.x - mousedown.x);
+  rubberbandRect.height = Math.abs(loc.y - mousedown.y);
 
-   if (loc.x > mousedown.x) rubberbandRect.left = mousedown.x;
-   else                     rubberbandRect.left = loc.x;
+  if (loc.x > mousedown.x) rubberbandRect.left = mousedown.x;
+  else rubberbandRect.left = loc.x;
 
-   if (loc.y > mousedown.y) rubberbandRect.top = mousedown.y;
-   else                     rubberbandRect.top = loc.y;
-} 
+  if (loc.y > mousedown.y) rubberbandRect.top = mousedown.y;
+  else rubberbandRect.top = loc.y;
+}
 
 function drawRubberbandShape(loc) {
-   var angle = Math.atan(rubberbandRect.height/rubberbandRect.width),
-       radius = rubberbandRect.height / Math.sin(angle);
-   
-   if (mousedown.y === loc.y) {
-      radius = Math.abs(loc.x - mousedown.x); 
-   }
+  var angle = Math.atan(rubberbandRect.height / rubberbandRect.width),
+    radius = rubberbandRect.height / Math.sin(angle);
 
-   context.beginPath();
-   context.arc(mousedown.x, mousedown.y, radius, 0, Math.PI*2, false); 
-   context.stroke();
-   context.fill();
+  if (mousedown.y === loc.y) {
+    radius = Math.abs(loc.x - mousedown.x);
+  }
+
+  context.beginPath();
+  context.arc(mousedown.x, mousedown.y, radius, 0, Math.PI * 2, false);
+  context.stroke();
+  context.fill();
 }
 
 function updateRubberband(loc) {
-   updateRubberbandRectangle(loc);
-   drawRubberbandShape(loc);
+  updateRubberbandRectangle(loc);
+  drawRubberbandShape(loc);
 }
 
 // Guidewires....................................................
 
-function drawHorizontalLine (y) {
-   context.beginPath();
-   context.moveTo(0,y+0.5);
-   context.lineTo(context.canvas.width,y+0.5);
-   context.stroke();
+function drawHorizontalLine(y) {
+  context.beginPath();
+  context.moveTo(0, y + 0.5);
+  context.lineTo(context.canvas.width, y + 0.5);
+  context.stroke();
 }
 
-function drawVerticalLine (x) {
-   context.beginPath();
-   context.moveTo(x+0.5,0);
-   context.lineTo(x+0.5,context.canvas.height);
-   context.stroke();
+function drawVerticalLine(x) {
+  context.beginPath();
+  context.moveTo(x + 0.5, 0);
+  context.lineTo(x + 0.5, context.canvas.height);
+  context.stroke();
 }
 
 function drawGuidewires(x, y) {
-   context.save();
-   context.strokeStyle = 'rgba(0,0,230,0.4)';
-   context.lineWidth = 0.5;
-   drawVerticalLine(x);
-   drawHorizontalLine(y);
-   context.restore();
+  context.save();
+  context.strokeStyle = 'rgba(0,0,230,0.4)';
+  context.lineWidth = 0.5;
+  drawVerticalLine(x);
+  drawHorizontalLine(y);
+  context.restore();
 }
 
 // Eraser........................................................
 
 // 画个橡皮擦的影子
 function setDrawPathForEraser(loc) {
-   var eraserWidth = parseFloat(eraserWidthSelect.value);
-   
-   context.beginPath();
+  var eraserWidth = parseFloat(eraserWidthSelect.value);
 
-   if (eraserShapeSelect.value === 'circle') {
-      context.arc(loc.x, loc.y,
-                  eraserWidth/2,
-                  0, Math.PI*2, false);
-   }
-   else {
-      context.rect(loc.x - eraserWidth/2,
-                   loc.y - eraserWidth/2,
-                   eraserWidth, eraserWidth);
-   }
-   context.clip();
+  context.beginPath();
+
+  if (eraserShapeSelect.value === 'circle') {
+    context.arc(loc.x, loc.y,
+      eraserWidth / 2,
+      0, Math.PI * 2, false);
+  } else {
+    context.rect(loc.x - eraserWidth / 2,
+      loc.y - eraserWidth / 2,
+      eraserWidth, eraserWidth);
+  }
+  context.clip();
 }
 
 function setErasePathForEraser() {
-   var eraserWidth = parseFloat(eraserWidthSelect.value);
-   
-   context.beginPath();
+  var eraserWidth = parseFloat(eraserWidthSelect.value);
 
-   if (eraserShapeSelect.value === 'circle') {
-      context.arc(lastX, lastY,
-                  eraserWidth/2 + ERASER_LINE_WIDTH,
-                  0, Math.PI*2, false);
-   }
-   else {
-      context.rect(lastX - eraserWidth/2 - ERASER_LINE_WIDTH,
-                   lastY - eraserWidth/2 - ERASER_LINE_WIDTH,
-                   eraserWidth + ERASER_LINE_WIDTH*2,
-                   eraserWidth + ERASER_LINE_WIDTH*2);
-   }
-   context.clip();
+  context.beginPath();
+
+  if (eraserShapeSelect.value === 'circle') {
+    context.arc(lastX, lastY,
+      eraserWidth / 2 + ERASER_LINE_WIDTH,
+      0, Math.PI * 2, false);
+  } else {
+    context.rect(lastX - eraserWidth / 2 - ERASER_LINE_WIDTH,
+      lastY - eraserWidth / 2 - ERASER_LINE_WIDTH,
+      eraserWidth + ERASER_LINE_WIDTH * 2,
+      eraserWidth + ERASER_LINE_WIDTH * 2);
+  }
+  context.clip();
+
+}
+
+function fixSetErasePathForEraser() {
+
+  setErasePathForEraser()
+
+  context.clearRect(0, 0, canvas.width, canvas.height)
 }
 
 function setEraserAttributes() {
-  context.lineWidth     = ERASER_LINE_WIDTH;
-  context.shadowColor   = ERASER_SHADOW_STYLE;
-  context.shadowOffsetX = ERASER_SHADOW_OFFSET; 
+  context.lineWidth = ERASER_LINE_WIDTH;
+  context.shadowColor = ERASER_SHADOW_STYLE;
+  context.shadowOffsetX = ERASER_SHADOW_OFFSET;
   context.shadowOffsetY = ERASER_SHADOW_OFFSET;
-  context.shadowBlur    = ERASER_SHADOW_BLUR;
-  context.strokeStyle   = ERASER_STROKE_STYLE;
+  context.shadowBlur = ERASER_SHADOW_BLUR;
+  context.strokeStyle = ERASER_STROKE_STYLE;
 }
 
 function eraseLast() {
-   context.save();
+  context.save();
 
-   /**
-    * 这里用了 clip() 将鼠标位置设置为裁剪区。之后画的东西都在这个区域里才能看到
-    */
-   setErasePathForEraser();
-   
-   /**
-    * 然后重新画了一遍底部的背景格子，而且只显示在上面的裁剪区内，所以给人的感觉像是把原来那里的东西给擦掉了
-    */
-   drawGrid(GRID_LINE_COLOR,
-            GRID_HORIZONTAL_SPACING,
-            GRID_VERTICAL_SPACING);
+  /**
+   * 这里用了 clip() 将鼠标位置设置为裁剪区。之后画的东西都在这个区域里才能看到
+   * 然后重新画了一遍底部的背景格子，而且只显示在上面的裁剪区内，所以给人的感觉像是把原来那里的东西给擦掉了
+   */
+  setErasePathForEraser();
 
-   context.restore();
+  fixSetErasePathForEraser()
+
+  drawGrid(GRID_LINE_COLOR,
+    GRID_HORIZONTAL_SPACING,
+    GRID_VERTICAL_SPACING);
+
+  context.restore();
 }
 
 function drawEraser(loc) {
-   context.save();
+  context.save();
 
-   setEraserAttributes();     
-   setDrawPathForEraser(loc);
-   context.stroke();
+  setEraserAttributes();
+  setDrawPathForEraser(loc);
+  context.stroke();
 
-   context.restore();
+  context.restore();
 }
 
 // Canvas event handlers.........................................
 
 canvas.onmousedown = function (e) {
-   var loc = windowToCanvas(e.clientX, e.clientY);
-   
-   e.preventDefault(); // prevent cursor change
+  var loc = windowToCanvas(e.clientX, e.clientY);
 
-   if (drawRadio.checked) {
-      saveDrawingSurface();
-   }
+  e.preventDefault(); // prevent cursor change
 
-   mousedown.x = loc.x;
-   mousedown.y = loc.y;
+  if (drawRadio.checked) {
+    saveDrawingSurface();
+  }
 
-   lastX = loc.x;
-   lastY = loc.y;
-   
-   dragging = true;
+  mousedown.x = loc.x;
+  mousedown.y = loc.y;
+
+  lastX = loc.x;
+  lastY = loc.y;
+
+  dragging = true;
 };
 
 canvas.onmousemove = function (e) {
-   var loc; 
+  var loc;
 
-   if (dragging) {
-      e.preventDefault(); // prevent selections
+  if (dragging) {
+    e.preventDefault(); // prevent selections
 
-      loc = windowToCanvas(e.clientX, e.clientY);
+    loc = windowToCanvas(e.clientX, e.clientY);
 
-      if (drawRadio.checked) {
-         restoreDrawingSurface();
-         updateRubberband(loc);
+    if (drawRadio.checked) {
+      restoreDrawingSurface();
+      updateRubberband(loc);
 
-         if(guidewires) {
-            drawGuidewires(loc.x, loc.y);
-         }
+      if (guidewires) {
+        drawGuidewires(loc.x, loc.y);
       }
-      else {
-        console.log('eraseLast')
-        /**
-         * 调用清空鼠标区域的绘图
-         */
-         eraseLast();
+    } else {
+      console.log('eraseLast')
+      /**
+       * 调用清空鼠标区域的绘图
+       */
+      eraseLast();
 
-         /**
-          * TODO:
-          * drawEraser 绘制个橡皮擦的提示的样子，让人看到真的拖着个橡皮擦
-          */
-         drawEraser(loc);
-      }
-      lastX = loc.x;
-      lastY = loc.y;
-   }
+      /**
+       * TODO:
+       * drawEraser 绘制个橡皮擦的提示的样子，让人看到真的拖着个橡皮擦
+       */
+      drawEraser(loc);
+    }
+    lastX = loc.x;
+    lastY = loc.y;
+  }
 };
 
 canvas.onmouseup = function (e) {
-   loc = windowToCanvas(e.clientX, e.clientY);
+  loc = windowToCanvas(e.clientX, e.clientY);
 
-   if (drawRadio.checked) {
-      restoreDrawingSurface();
-      updateRubberband(loc);
-   }
+  if (drawRadio.checked) {
+    restoreDrawingSurface();
+    updateRubberband(loc);
+  }
 
-   if (eraserRadio.checked) {
-      eraseLast();
-   }
-   
-   dragging = false;
+  if (eraserRadio.checked) {
+    eraseLast();
+  }
+
+  dragging = false;
 };
 
 // Controls event handlers.......................................
 
 strokeStyleSelect.onchange = function (e) {
-   context.strokeStyle = strokeStyleSelect.value;
+  context.strokeStyle = strokeStyleSelect.value;
 };
 
 fillStyleSelect.onchange = function (e) {
-   context.fillStyle = fillStyleSelect.value;
+  context.fillStyle = fillStyleSelect.value;
 };
 
 // Initialization................................................
 
 context.strokeStyle = strokeStyleSelect.value;
 context.fillStyle = fillStyleSelect.value;
-drawGrid(GRID_LINE_COLOR,
-         GRID_HORIZONTAL_SPACING,
-         GRID_VERTICAL_SPACING);
+drawGrid(GRID_LINE_COLOR, GRID_HORIZONTAL_SPACING, GRID_VERTICAL_SPACING);
 
 
 
 
-
-/**
- * 开启一条路径，调用clip()，将这条路径设置为裁剪区，之后在canvas绘图，都只能在绘裁剪区内，外边不会绘的。
- */
-
-context.beginPath()
-context.rect(50, 50, 50, 50)
-context.clip()
 
 context.fillStyle = 'green'
 context.fillRect(0, 0, canvas.width, canvas.height)
 
-/**
- * 下面这个rect不在裁剪区内，所以是看不到的
- */
-context.beginPath()
-context.rect(100, 100, 50, 80)
-context.fillStyle = 'red'
-context.fill()
+function clip1() {
+  /**
+   * 开启一条路径，调用clip()，将这条路径设置为裁剪区，之后在canvas绘图，都只能在绘裁剪区内，外边不会绘的。
+   * 而且，此时使用clearRect清空整个屏幕，也只是清空裁剪区内的部分。
+   */
 
+  context.beginPath()
+  context.rect(50, 50, 50, 50)
+  context.clip()
 
-   
+  /**
+   * 下面这个rect不在裁剪区内，所以是看不到的
+   */
+  context.beginPath()
+  context.rect(100, 100, 50, 80)
+  context.fillStyle = 'red'
+  context.fill()
+}
 
+function clip2() {
+  context.beginPath()
+  context.rect(50, 50, 50, 50)
+  context.clip()
 
+  context.clearRect(0, 0, canvas.width, canvas.height)
+}
+
+// clip1()
+
+// clip2()
 
 
