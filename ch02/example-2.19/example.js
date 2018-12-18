@@ -76,6 +76,8 @@ function drawGrid(color, stepx, stepy) {
 function windowToCanvas(x, y) {
    var bbox = canvas.getBoundingClientRect();
 
+  //  console.log(canvas.width === bbox.width, canvas.height === bbox.height)
+
    return { x: x - bbox.left * (canvas.width  / bbox.width),
             y: y - bbox.top  * (canvas.height / bbox.height)
           };
@@ -106,24 +108,37 @@ function updateRubberbandRectangle(loc) {
    else                     rubberbandRect.top = loc.y;
 } 
 
+/**
+ * loc: 鼠标位置
+ */
 function drawRubberbandShape(loc) {
    var angle,
        radius;
 
-   if (mousedown.y === loc.y) { // horizontal line
-      // Horizontal lines are a special case. See the else
-      // block for an explanation
-      
-      radius = Math.abs(loc.x - mousedown.x);
-   }
-   else {
-      // For horizontal lines, the angle is 0, and Math.sin(0)
-      // is 0, which means we would be dividing by 0 here to get NaN
-      // for radius. The if block above catches horizontal lines.
+       // 他的做法就是从起始点到当前鼠标点算做圆的半径，那为啥不直接算距离呢？有点2吧
 
-      angle = Math.atan(rubberbandRect.height/rubberbandRect.width),
-      radius = rubberbandRect.height / Math.sin(angle);
-   }
+  //  if (mousedown.y === loc.y) { // horizontal line
+  //     // Horizontal lines are a special case. See the else
+  //     // block for an explanation
+      
+  //     radius = Math.abs(loc.x - mousedown.x);
+  //  }
+  //  else {
+  //     // For horizontal lines, the angle is 0, and Math.sin(0)
+  //     // is 0, which means we would be dividing by 0 here to get NaN
+  //     // for radius. The if block above catches horizontal lines.
+
+  //     angle = Math.atan(rubberbandRect.height/rubberbandRect.width),
+  //     radius = rubberbandRect.height / Math.sin(angle);
+  //  }
+  
+  //  console.log('r1', radius)
+
+  var distance = Math.pow((mousedown.x - loc.x), 2) + Math.pow((mousedown.y - loc.y), 2)
+  var radius = Math.sqrt(distance)
+
+  // console.log('r2', radius);
+  
 
    context.beginPath();
    context.arc(mousedown.x, mousedown.y, radius, 0, Math.PI*2, false); 
