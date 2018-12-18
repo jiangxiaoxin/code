@@ -163,6 +163,7 @@ function drawGuidewires(x, y) {
 
 // Eraser........................................................
 
+// 画个橡皮擦的影子
 function setDrawPathForEraser(loc) {
    var eraserWidth = parseFloat(eraserWidthSelect.value);
    
@@ -212,7 +213,14 @@ function setEraserAttributes() {
 function eraseLast() {
    context.save();
 
+   /**
+    * 这里用了 clip() 将鼠标位置设置为裁剪区。之后画的东西都在这个区域里才能看到
+    */
    setErasePathForEraser();
+   
+   /**
+    * 然后重新画了一遍底部的背景格子，而且只显示在上面的裁剪区内，所以给人的感觉像是把原来那里的东西给擦掉了
+    */
    drawGrid(GRID_LINE_COLOR,
             GRID_HORIZONTAL_SPACING,
             GRID_VERTICAL_SPACING);
@@ -267,7 +275,16 @@ canvas.onmousemove = function (e) {
          }
       }
       else {
+        console.log('eraseLast')
+        /**
+         * 调用清空鼠标区域的绘图
+         */
          eraseLast();
+
+         /**
+          * TODO:
+          * drawEraser 绘制个橡皮擦的提示的样子，让人看到真的拖着个橡皮擦
+          */
          drawEraser(loc);
       }
       lastX = loc.x;
@@ -307,4 +324,33 @@ context.fillStyle = fillStyleSelect.value;
 drawGrid(GRID_LINE_COLOR,
          GRID_HORIZONTAL_SPACING,
          GRID_VERTICAL_SPACING);
+
+
+
+
+
+/**
+ * 开启一条路径，调用clip()，将这条路径设置为裁剪区，之后在canvas绘图，都只能在绘裁剪区内，外边不会绘的。
+ */
+
+context.beginPath()
+context.rect(50, 50, 50, 50)
+context.clip()
+
+context.fillStyle = 'green'
+context.fillRect(0, 0, canvas.width, canvas.height)
+
+/**
+ * 下面这个rect不在裁剪区内，所以是看不到的
+ */
+context.beginPath()
+context.rect(100, 100, 50, 80)
+context.fillStyle = 'red'
+context.fill()
+
+
+   
+
+
+
 

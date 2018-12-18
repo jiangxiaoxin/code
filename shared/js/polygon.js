@@ -46,6 +46,9 @@ var Polygon = function (centerX, centerY, radius, sides, startAngle, strokeStyle
 };
 
 Polygon.prototype = {
+  // FIXME:
+  // 这里也是，重复创建这些点没意思了吧
+  // 正多边形通过参数就可以描述了，所以等真的需要画的时候再 createPoints，并且这时候只保存这一份点就够了
    getPoints: function () {
       var points = [],
           angle = this.startAngle || 0;

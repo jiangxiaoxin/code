@@ -115,7 +115,13 @@ function restoreDrawingSurface() {
 
 function drawPolygon(polygon) {
    context.beginPath();
-   polygon.createPath(context);
+
+  /**
+   * FIXME:
+   * 这里几个方法里，createPath就会调用3次，而每次createPath的时候又都会重新调用内部的方法getPoints
+   */
+
+  //  polygon.createPath(context);
    polygon.stroke(context);
 
    if (fillCheckbox.checked) {

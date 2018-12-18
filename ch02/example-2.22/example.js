@@ -61,3 +61,44 @@ context.quadraticCurveTo(240, 100.5, 290, 70.5);
 context.strokeStyle = 'blue'
 context.stroke();
 
+
+context.beginPath()
+context.moveTo(100, 100)
+context.lineTo(200, 100)
+context.lineTo(200, 150)
+context.lineTo(100, 150)
+context.closePath()
+context.lineWidth = 5.0
+context.strokeStyle = 'gold'
+context.stroke()
+
+
+var points = [
+  {
+    x: 125,
+    y: 125
+  },
+  {
+    x: 150, 
+    y: 120
+  },
+  {
+    x: 80,
+    y: 90
+  }
+]
+// context.beginPath()
+context.lineWidth = 1.0
+for (let index = 0; index < points.length; index++) {
+  
+  const point = points[index];
+  console.log(`${point.x} ${point.y}: ${context.isPointInPath(point.x, point.y)}`)
+  // context.moveTo(point.x, point.y)
+  // context.arc(point.x, point.y, 2, 0, Math.PI * 2)
+  // context.strokeStyle = 'black'
+  
+}
+
+context.stroke()
+
+
