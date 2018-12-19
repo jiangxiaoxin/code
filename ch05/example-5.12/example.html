@@ -35,17 +35,17 @@
 
       <style> 
          body {
-            background: #dddddd;
+            background: yellow;
          }
 
-         #canvas {
+         /* #canvas {
             position: absolute;
             left: 0px;
             top: 20px;
             margin: 20px;
             background: #ffffff;
             border: thin inset rgba(100,150,230,0.5);
-         }
+         } */
 
          #controls {
             margin-top: 10px;
@@ -55,9 +55,7 @@
    </head>
 
   <body>
-    <div style="width:100px;height:100px;background:rgba(0,0,0,0);border: 1px solid red;">
-      黑色背景
-    </div>
+    
     <div id='controls'>
       <input id='animateButton' type='button' value='Animate'/>
     </div>
@@ -65,6 +63,10 @@
     <canvas id='canvas' width='750' height='500'>
       Canvas not supported
     </canvas>
+
+    <div style="width:100px;height:100px;background:rgba(0,0,0,0);border: 1px solid red;">
+        设置了背景颜色
+      </div>
 
     <script src='example.js'></script>
     <script src="mycode.js"></script>
