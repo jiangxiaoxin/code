@@ -39,9 +39,9 @@
 			}
 
 			#canvas {
-            position: absolute;
+            /* position: absolute;
             top: 30px;
-            left: 10px;
+            left: 10px; */
             background: #ffffff;
             cursor: crosshair;
             margin-left: 10px;
@@ -59,11 +59,14 @@
    </head>
 
   <body>
+    <div>
+        <input id='animateButton' type='button' value='Animate'/>
+    </div>
     <canvas id='canvas' width='1024' height='512'>
       Canvas not supported
     </canvas>
 
-    <input id='animateButton' type='button' value='Animate'/>
+    
 
     <script src='../../shared/js/requestNextAnimationFrame.js'></script>
     <script src='example.js'></script>

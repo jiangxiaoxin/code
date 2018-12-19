@@ -58,6 +58,14 @@ function draw() {
    context.translate(-skyOffset, 0);
 
    context.drawImage(sky, 0, 0);
+
+   /**
+    * 这里 -2， 是因为原图的边上有间隙，去掉就很明显的看出来.
+    * drawImage 参数数量不同时候表示的意思是不一样的。
+    * context.drawImage(sky, 0, 0); 在坐标原点处开始画sky
+    * context.drawImage(sky, sky.width-2, 0); 在sky.width-2处开始画sky。因为sky图片的右边有间隙，所以不是在sky.width处而是往左一点的地方就开始画
+    * 这样图就是连起来的了。
+    */
    context.drawImage(sky, sky.width-2, 0);
 
    context.restore();
@@ -104,6 +112,16 @@ canvas.height = canvas.height;
 sky.src = '../../shared/images/sky.png';
 sky.onload = function (e) {
    draw();
+
+
+  // context.save()
+  // context.drawImage(sky, 0, 0)
+  // context.restore()
+
+
+  // context.save()
+  // context.drawImage(sky, sky.width/2, 0)
+  // context.restore()
 };
 
 requestNextAnimationFrame(animate);
