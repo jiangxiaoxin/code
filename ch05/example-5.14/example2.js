@@ -568,20 +568,27 @@ animateButton.addEventListener('click', function (e) {
    }
 });
 
+
+/**
+ * FIXME:
+ * 这里为啥要在两种情况下设置不同的速度呢？这根本不说明问题呀！！
+ * 
+ * 这个例子很简单，就是更新位置的时候，速度是按照一帧移动多远来计算 还是按照 1s移动多远来计算。
+ */
 timeBasedMotionCheckbox.addEventListener('click', function (e) {
    if (timeBasedMotionCheckbox.checked) {
       timeBasedMotion = true;
-      for (var i=0; i < discs.length; ++i) {
-         discs[i].velocityX *= 50;
-         discs[i].velocityY *= 50;
-      }
+      // for (var i=0; i < discs.length; ++i) {
+      //    discs[i].velocityX *= 50;
+      //    discs[i].velocityY *= 50;
+      // }
    }
    else {
       timeBasedMotion = false;
-      for (var i=0; i < discs.length; ++i) {
-         discs[i].velocityX /= 50;
-         discs[i].velocityY /= 50;
-      }
+      // for (var i=0; i < discs.length; ++i) {
+      //    discs[i].velocityX /= 50;
+      //    discs[i].velocityY /= 50;
+      // }
    }
 });
 
