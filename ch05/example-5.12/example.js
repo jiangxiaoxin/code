@@ -189,6 +189,10 @@ function calculateFps() {
    return fps;
 }
 
+/**
+ * FIXME:
+ * 这个例子就是在瞎扯，哪有不同帧率。
+ */
 function animate() {
    var now = (+new Date),
        fps = 0;
