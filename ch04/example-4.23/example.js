@@ -36,7 +36,7 @@ var canvas = document.getElementById('canvas')
 
   /**
    * https://developers.google.com/web/updates/2017/09/autoplay-policy-changes
-   * 直接调用play方法开始播放会报错误滴
+   * 直接调用play方法开始播放会报错误滴.新的chrome浏览器播放规则。
    */
 
   /**
