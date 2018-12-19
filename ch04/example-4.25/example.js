@@ -66,9 +66,20 @@ function removeColor() {
 function drawFlipped() {
    context.save();
 
-   context.translate(canvas.width/2, canvas.height/2);
-   context.rotate(Math.PI);
-   context.translate(-canvas.width/2, -canvas.height/2);
+  // //  沿着 canvas的坐标轴位置移动
+  //  context.translate(canvas.width/2, canvas.height/2);
+  //  context.rotate(Math.PI);
+  //  // 还是沿着 canvas 的坐标轴移动，但这时候经过上面的旋转， 坐标轴也跟着旋转了。
+  //  context.translate(-canvas.width/2, -canvas.height/2);
+
+   /**
+    * 下面这个跟上面实现的效果一样，就是将“屏幕”翻转。
+    * 分两次移动，何不开始就旋转，然后直接移动一整个“屏”（canvas）的距离呢？
+    * 也很好的验证了 context 的坐标变换，变换的是坐标轴 ！！！
+    */
+  context.rotate(Math.PI)
+  context.translate(-canvas.width, -canvas.height)
+
    context.drawImage(offscreenCanvas, 0, 0);
 
    context.restore();
@@ -79,14 +90,17 @@ function nextVideoFrame() {
       controlButton.value = 'Play';
    }
    else {
+     // 从video中绘制到离屏的canvas上
      offscreenContext.drawImage(video, 0, 0);
-
+    // 处理图像的像素，对颜色分量进行均值，变灰了。
      if (!colorCheckbox.checked)
         removeColor();
-
+      
      if (flipCheckbox.checked)
+     // 翻转图像
         drawFlipped();
      else
+     // 或者直接绘制
        context.drawImage(offscreenCanvas, 0, 0);
 
      requestNextAnimationFrame(nextVideoFrame);
@@ -121,9 +135,9 @@ poster.onload = function() {
 
 // Initialization................................................
 
-poster.src = '../../shared/images/smurfposter.png';
+// 这张图片随便找的
+poster.src = '../../shared/images/waterfall.png';
 
 offscreenCanvas.width = canvas.width;
 offscreenCanvas.height = canvas.height;
 
-alert('This example plays a video, but due to copyright restrictions and size limitations, the video is not included in the code for this example. To make this example work, download a video, and replace the two source elements in example.html to refer to your video.');
